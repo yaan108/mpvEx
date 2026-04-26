@@ -83,7 +83,7 @@ jobs:
 
           declare -a apks=("universal" "arm64-v8a" "armeabi-v7a" "x86" "x86_64")
           mkdir -p output
-          # Initialize empty array for file sizes
+          mkdir -p output-universal
           declare -a file_sizes=()
           
           for arch in "${apks[@]}"; do
@@ -96,11 +96,21 @@ jobs:
             echo "${arch}_size=$size" >> $GITHUB_OUTPUT
           done
 
+          # Copy universal APK separately for the standalone artifact
+          cp "output/mpvEx-preview-r${commit_count}-universal.apk" \
+             "output-universal/mpvEx-preview-r${commit_count}-universal.apk"
+
       - name: Upload all artifacts
         uses: actions/upload-artifact@v4
         with:
           name: preview-apks
           path: output/
+
+      - name: Upload universal artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-universal
+          path: output-universal/
 
   publish:
     needs: build
