@@ -181,7 +181,7 @@ private fun NetworkBrowserContent(
       ) {
         EmptyState(
           icon = Icons.Filled.Folder,
-          title = "Error loading files",
+          title = "خطأ في تحميل الملفات",
           message = error,
         )
       }
@@ -194,8 +194,8 @@ private fun NetworkBrowserContent(
       ) {
         EmptyState(
           icon = Icons.Filled.Folder,
-          title = "Empty folder",
-          message = "This folder contains no files or directories",
+          title = "مجلد فارغ",
+          message = "لا يحتوي هذا المجلد على ملفات أو دلائل",
         )
       }
     }
@@ -255,7 +255,7 @@ private fun NetworkBrowserContent(
             if (folders.isNotEmpty()) {
               item {
                 Text(
-                  text = "Folders",
+                  text = "المجلدات",
                   style = MaterialTheme.typography.titleMedium,
                   color = MaterialTheme.colorScheme.primary,
                   modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
@@ -277,7 +277,7 @@ private fun NetworkBrowserContent(
             if (videos.isNotEmpty()) {
               item {
                 Text(
-                  text = "Videos",
+                  text = "مقاطع الفيديو",
                   style = MaterialTheme.typography.titleMedium,
                   color = MaterialTheme.colorScheme.primary,
                   modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp),
