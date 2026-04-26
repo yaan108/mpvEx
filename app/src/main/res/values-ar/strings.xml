@@ -481,10 +481,10 @@
   <string name="video_url">رابط الفيديو</string>
   <string name="choose_local_m3u_file">اختر ملف M3U محلياً</string>
   <string name="add_from_url">إضافة من رابط</string>
-  <string name="home">الرئيسية</string>
-  <string name="recents">الأخيرة</string>
+  <string name="home">الصحة الرئيسية</string>
+  <string name="recents">السجل</string>
   <string name="playlists">قوائم التشغيل</string>
-  <string name="network">الشبكة</string>
+  <string name="network">شبكة</string>
   <string name="seconds">ثوانٍ</string>
   <string name="milliseconds">مللي ثانية</string>
   <string name="name">الاسم</string>
