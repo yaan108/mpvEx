@@ -205,6 +205,8 @@ dependencies {
   implementation(libs.kotlinx.immutable.collections)
   implementation(libs.kotlinx.serialization.json)
   implementation(libs.okhttp)
+  implementation(libs.coil.compose)
+  implementation(libs.coil.network.okhttp)
 
   implementation(libs.truetype.parser)
   implementation(libs.fsaf)

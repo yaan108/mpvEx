@@ -41,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -159,6 +160,7 @@ object SubtitlesPreferencesScreen : Screen {
         val wyzieFormats by preferences.wyzieFormats.collectAsState()
         val wyzieEncodings by preferences.wyzieEncodings.collectAsState()
         val wyzieApiKey by preferences.wyzieApiKey.collectAsState()
+        val tmdbApiKey by preferences.tmdbApiKey.collectAsState()
 
         val saveLocationPicker =
           rememberLauncherForActivityResult(
@@ -365,6 +367,41 @@ object SubtitlesPreferencesScreen : Screen {
 
           item {
             PreferenceCard {
+              // TMDB API Key
+              TextFieldPreference(
+                  value = tmdbApiKey,
+                  onValueChange = preferences.tmdbApiKey::set,
+                  textToValue = { it },
+                  title = { Text("TMDB API Key (Optional)") },
+                  summary = {
+                      if (tmdbApiKey.isNotBlank()) {
+                          Text(
+                              "•".repeat(minOf(tmdbApiKey.length, 16)),
+                              color = MaterialTheme.colorScheme.outline,
+                          )
+                      } else {
+                          Text(
+                              "Enables poster images & multilingual search. Get free key from themoviedb.org",
+                              color = MaterialTheme.colorScheme.outline,
+                          )
+                      }
+                  },
+                  textField = { value, onValueChange, _ ->
+                      Column {
+                          Text("Free key from themoviedb.org/settings/api — leave blank to use Wyzie")
+                          Spacer(modifier = Modifier.size(8.dp))
+                          TextField(
+                              value,
+                              onValueChange,
+                              modifier = Modifier.fillMaxWidth(),
+                              placeholder = { Text("eyJhbGciOiJIUzI1NiJ9...") },
+                              singleLine = true,
+                          )
+                      }
+                  },
+              )
+
+              PreferenceDivider()
               // API Key
               TextFieldPreference(
                 value = wyzieApiKey,

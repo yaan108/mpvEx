@@ -52,7 +52,8 @@ class SubtitlesPreferences(
   val wyzieFormats = preferenceStore.getStringSet("wyzie_formats", setOf("srt", "ass"))
   val wyzieEncodings = preferenceStore.getStringSet("wyzie_encodings", setOf("utf-8"))
   val wyzieHearingImpaired = preferenceStore.getBoolean("wyzie_hi", false)
-    val wyzieApiKey = preferenceStore.getString("wyzie_api_key", "")
+  val wyzieApiKey = preferenceStore.getString("wyzie_api_key", "")
+  val tmdbApiKey = preferenceStore.getString("tmdb_api_key", "")
 }
 
 enum class SubtitleJustification(

@@ -95,6 +95,22 @@ data class WyzieSeasonDetails(
     val episodes: List<WyzieEpisode> = emptyList()
 )
 
+@Serializable
+private data class TmdbDirectResponse(
+    val results: List<TmdbRawResult> = emptyList()
+)
+
+@Serializable
+private data class TmdbRawResult(
+    val id: Int,
+    val media_type: String,
+    val title: String? = null,
+    val name: String? = null,
+    val release_date: String? = null,
+    val first_air_date: String? = null,
+    val poster_path: String? = null
+)
+
 object WyzieSources {
     val ALL = mapOf(
         "all" to "All",
@@ -444,6 +460,15 @@ class WyzieSearchRepository(
     }
 
     private fun tmdbSearch(query: String): List<WyzieTmdbResult> {
+        val tmdbKey = preferences.tmdbApiKey.get()
+        return if (tmdbKey.isNotBlank()) {
+            tmdbDirectSearch(query, tmdbKey)
+        } else {
+            tmdbSearchViaWyzie(query)
+        }
+    }
+
+    private fun tmdbSearchViaWyzie(query: String): List<WyzieTmdbResult> {
         val apiKey = preferences.wyzieApiKey.get()
         val keyParam = if (apiKey.isNotBlank()) "&key=${URLEncoder.encode(apiKey, "UTF-8")}" else ""
         val url = "$baseUrl/api/tmdb/search?q=${URLEncoder.encode(query, "UTF-8")}$keyParam"
@@ -455,6 +480,36 @@ class WyzieSearchRepository(
             if (!response.isSuccessful) throw IOException("Media search failed (HTTP ${response.code}). Please try again.")
             val body = response.body?.string() ?: throw IOException("Empty body")
             return json.decodeFromString<WyzieTmdbResponse>(body).results
+        }
+    }
+
+    private fun tmdbDirectSearch(query: String, apiKey: String): List<WyzieTmdbResult> {
+        val url = "https://api.themoviedb.org/3/search/multi" +
+            "?query=${URLEncoder.encode(query, "UTF-8")}" +
+            "&include_adult=false&language=en-US&page=1"
+        val request = Request.Builder()
+            .url(url)
+            .header("Authorization", "Bearer $apiKey")
+            .header("accept", "application/json")
+            .build()
+        client.newCall(request).execute().use { response ->
+            if (response.code == 401 || response.code == 403) {
+                throw IOException("Invalid TMDB API key. Check your key in Settings → Subtitles.")
+            }
+            if (!response.isSuccessful) throw IOException("TMDB search failed (HTTP ${response.code}).")
+            val body = response.body?.string() ?: throw IOException("Empty body")
+            val raw = json.decodeFromString<TmdbDirectResponse>(body)
+            return raw.results
+                .filter { it.media_type == "movie" || it.media_type == "tv" }
+                .map { item ->
+                    WyzieTmdbResult(
+                        id = item.id,
+                        mediaType = item.media_type,
+                        title = item.title ?: item.name ?: "Unknown",
+                        releaseYear = (item.release_date ?: item.first_air_date)?.take(4),
+                        poster = item.poster_path?.let { "https://image.tmdb.org/t/p/w92$it" }
+                    )
+                }
         }
     }
 
