@@ -1180,7 +1180,7 @@ fun PlayerControls(
                   val navBarPadding = WindowInsets.navigationBars.asPaddingValues()
                   Modifier.padding(
                     start = navBarPadding.calculateLeftPadding(androidx.compose.ui.unit.LayoutDirection.Ltr),
-                    end = navB.arPadding.calculateRightPadding(androidx.compose.ui.unit.LayoutDirection.Ltr)
+                    end = navBarPadding.calculateRightPadding(androidx.compose.ui.unit.LayoutDirection.Ltr)
                   )
                 } else {
                   Modifier
