@@ -224,6 +224,9 @@ class WyzieSearchRepository(
 ) {
     private val baseUrl = "https://sub.wyzie.io"
 
+    private fun sanitizeFileName(name: String): String =
+        name.replace(Regex("[/\\:*?"<>|]"), "_").trim()
+
     suspend fun search(
         query: String,
         season: Int? = null,
@@ -386,9 +389,22 @@ class WyzieSearchRepository(
             val saveFolderUri = preferences.subtitleSaveFolder.get()
             // Use CRC32 checksum of mediaTitle for the folder name
             val folderName = ChecksumUtils.getCRC32(mediaTitle)
-            val fullTitle = mediaTitle.substringBeforeLast(".")
-            val langCode = subtitle.language ?: "en"
-            val subFileName = "${fullTitle}.${langCode}.$extension"
+            
+            val subFileName = when {
+                !subtitle.fileName.isNullOrBlank() -> {
+                    val nameWithoutExt = subtitle.fileName.substringBeforeLast(".")
+                    "${sanitizeFileName(nameWithoutExt)}.$extension"
+                }
+                !subtitle.release.isNullOrBlank() -> {
+                    val langCode = subtitle.language ?: "en"
+                    "${sanitizeFileName(subtitle.release)}.${langCode}.$extension"
+                }
+                else -> {
+                    val fullTitle = mediaTitle.substringBeforeLast(".")
+                    val langCode = subtitle.language ?: "en"
+                    "${fullTitle}.${langCode}.$extension"
+                }
+            }
 
             if (saveFolderUri.isNotBlank()) {
                 val parentDir = DocumentFile.fromTreeUri(context, Uri.parse(saveFolderUri))
@@ -401,7 +417,7 @@ class WyzieSearchRepository(
                             else -> "text/plain"
                         }
                         val subFile = movieDir.findFile(subFileName)
-                            ?: movieDir.createFile(mimeType, subFileName)?.also { it.renameTo(subFileName) }
+                            ?: movieDir.createFile(mimeType, subFileName)
                         if (subFile != null) {
                             context.contentResolver.openOutputStream(subFile.uri)?.use { it.write(bytes) }
                             return@withContext Result.success(subFile.uri)
