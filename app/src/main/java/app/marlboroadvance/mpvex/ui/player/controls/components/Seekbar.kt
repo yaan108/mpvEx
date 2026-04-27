@@ -70,6 +70,7 @@ import kotlinx.coroutines.launch
 fun SeekbarWithTimers(
   position: Float,
   duration: Float,
+  readAheadValue: Float = 0f,
   onValueChange: (Float) -> Unit,
   onValueChangeFinished: () -> Unit,
   timersInverted: Pair<Boolean, Boolean>,
@@ -194,6 +195,7 @@ fun SeekbarWithTimers(
           StandardSeekbar(
             position = if (isUserInteracting) userPosition else animatedPosition.value,
             duration = duration,
+            readAheadValue = readAheadValue,
             chapters = chapters,
             isPaused = paused,
             isScrubbing = isUserInteracting,
@@ -216,6 +218,7 @@ fun SeekbarWithTimers(
           SquigglySeekbar(
             position = if (isUserInteracting) userPosition else animatedPosition.value,
             duration = duration,
+            readAheadValue = readAheadValue,
             chapters = chapters,
             isPaused = paused,
             isScrubbing = isUserInteracting,
@@ -231,6 +234,7 @@ fun SeekbarWithTimers(
           StandardSeekbar(
             position = if (isUserInteracting) userPosition else animatedPosition.value,
             duration = duration,
+            readAheadValue = readAheadValue,
             chapters = chapters,
             isPaused = paused,
             isScrubbing = isUserInteracting,
@@ -269,6 +273,7 @@ fun SeekbarWithTimers(
 private fun SquigglySeekbar(
   position: Float,
   duration: Float,
+  readAheadValue: Float = 0f,
   chapters: ImmutableList<Segment>,
   isPaused: Boolean,
   isScrubbing: Boolean,
@@ -438,6 +443,19 @@ private fun SquigglySeekbar(
 
     // Played segment
     drawPathWithGaps(0f, totalProgressPx, primaryColor)
+    
+    // Buffered Range
+    if (readAheadValue > 0f && duration > 0f) {
+        val readAheadFraction = ((position + readAheadValue) / duration).coerceIn(0f, 1f)
+        val readAheadPx = totalWidth * readAheadFraction
+        if (readAheadPx > totalProgressPx) {
+            drawPathWithGaps(
+                totalProgressPx,
+                readAheadPx,
+                primaryColor.copy(alpha = 0.5f)
+            )
+        }
+    }
 
     if (transitionEnabled) {
       val disabledAlpha = 77f / 255f
@@ -540,6 +558,7 @@ fun VideoTimer(
 fun StandardSeekbar(
     position: Float,
     duration: Float,
+    readAheadValue: Float = 0f,
     chapters: ImmutableList<Segment>,
     isPaused: Boolean = false,
     isScrubbing: Boolean = false,
@@ -695,6 +714,20 @@ fun StandardSeekbar(
                 // 2. Played
                 if (thumbGapStart > 0) {
                     drawRangeWithGaps(0f, thumbGapStart, chapterGaps, primaryColor)
+                }
+                
+                // Buffered Range
+                if (readAheadValue > 0f && duration > 0f) {
+                    val readAheadFraction = ((sliderState.value + readAheadValue) / (max - min)).coerceIn(0f, 1f)
+                    val readAheadPx = size.width * readAheadFraction
+                    if (readAheadPx > thumbGapEnd) {
+                        drawRangeWithGaps(
+                            thumbGapEnd,
+                            readAheadPx,
+                            emptyList(),
+                            primaryColor.copy(alpha = 0.5f)
+                        )
+                    }
                 }
 
                 // 3. A-B Loop Indicators

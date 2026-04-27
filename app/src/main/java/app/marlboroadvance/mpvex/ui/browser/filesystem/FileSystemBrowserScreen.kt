@@ -755,7 +755,7 @@ fun FileSystemBrowserScreen(path: String? = null) {
                 }
               },
               icon = { Icon(Icons.Filled.History, contentDescription = null) },
-              text = { Text(text = "تشغيلล่าสุด") },
+              text = { Text(text = "تم تشغيله مؤخرًا") },
             )
 
             FloatingActionButtonMenuItem(
